@@ -82,8 +82,7 @@ And the **Response from Backend** is:
     "pages_left": 15
 }
 
-// the name of the interest is in the following format "primary search term [secondry search term 1, secondry search term 2...]"
-// Secondry search terms are optional and will be added in square brackets('[', ']') 
+
 ```
 
 If the user then types:
