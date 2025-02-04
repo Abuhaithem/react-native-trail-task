@@ -33,52 +33,52 @@ And the **Response from Backend** is:
 ```
 {
     "autocomplete": [
-        {
-            "id": 1415,
-            "name": "Convose",
-            "type": "general",
-            "match": 41675,
-            "color": "#19AAEB",
-            "avatar": "https://cdn.convose.com/images/variants/kibcfku9wi9dkyln7x1w1ynhyzvp/a92a8ca453f3bc63bf52cb27bb8bf545027fb8cc7a2e6281bc67be0b9406d888",
-            "existing": true
-        },
-        {
-            "id": 2302,
-            "name": "Construction",
-            "type": "general",
-            "match": 23,
-            "color": "#BB6BD9",
-            "avatar": null,
-            "existing": false
-        },
-        {
-            "id": 65687,
-            "name": "Content creation",
-            "type": "general",
-            "match": 22,
-            "color": "#F2994A",
-            "avatar": null,
-            "existing": false
-        },
-        {
-            "id": 64519,
-            "name": "Content writing",
-            "type": "general",
-            "match": 13,
-            "color": "#19AAEB",
-            "avatar": null,
-            "existing": false
-        },
-        {
-            "id": 64322,
-            "name": "Conlangs [Constructed languages]",
-            "type": "general",
-            "match": 9,
-            "color": "#9B51E0",
-            "avatar": null,
-            "existing": false
-        }
-    ],
+    {
+        "id": 12,
+        "name": "English",
+        "type": "language",
+        "match": 119009,
+        "color": "#219653",
+        "avatar": "https://cdn.convose.com/images/variants/hyuh027tdhba8no1vuvg5c98pst3/a92a8ca453f3bc63bf52cb27bb8bf545027fb8cc7a2e6281bc67be0b9406d888",
+        "existing": false
+    },
+    {
+        "id": 5049,
+        "name": "Practicing English [English practice]",
+        "type": "general",
+        "match": 30582,
+        "color": "#219653",
+        "avatar": "https://cdn.convose.com/images/variants/urcpem2yoqcrkd5e12gn9ag69286/a9d3f5042b1bac6579a481d23ad9dc3ef3cbfd8456be171332e8bdd1f39e8427",
+        "existing": false
+    },
+    {
+        "id": 2723,
+        "name": "English Grammar",
+        "type": "general",
+        "match": 15859,
+        "color": "#27AE60",
+        "avatar": "https://cdn.convose.com/images/variants/vj54ij268t701qy6v5ofwv1jzy6u/a9d3f5042b1bac6579a481d23ad9dc3ef3cbfd8456be171332e8bdd1f39e8427",
+        "existing": false
+    },
+    {
+        "id": 2303,
+        "name": "ESL [English as a Second Language]",
+        "type": "general",
+        "match": 15148,
+        "color": "#0AD982",
+        "avatar": "https://cdn.convose.com/images/variants/1sfw1jt65m3ovxy2fuibwbu8r7fl/a92a8ca453f3bc63bf52cb27bb8bf545027fb8cc7a2e6281bc67be0b9406d888",
+        "existing": false
+    },
+    {
+        "id": 5044,
+        "name": "Learning English [English learning]",
+        "type": "general",
+        "match": 5648,
+        "color": "#F2994A",
+        "avatar": "https://cdn.convose.com/images/variants/i58uwjvhta78llvgv6mypt3dnzl4/a92a8ca453f3bc63bf52cb27bb8bf545027fb8cc7a2e6281bc67be0b9406d888",
+        "existing": false
+    }
+],
     "pages_left": 15
 }
 
