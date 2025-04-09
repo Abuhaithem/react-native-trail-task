@@ -2,7 +2,6 @@ import React, {useEffect, useState, useCallback, useMemo} from 'react';
 import {
   View,
   FlatList,
-  ActivityIndicator,
   SafeAreaView,
   Text,
   TouchableOpacity,
@@ -19,8 +18,8 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../types';
 import styles from './styles/InterestSearchStyle.styles';
 import InterestCard from './components/InterestCard';
+import ShimmerPlaceholders from './components/ShimmerPlaceholders';
 
-// Enable Layout Animation on Android
 if (
   Platform.OS === 'android' &&
   UIManager.setLayoutAnimationEnabledExperimental
@@ -43,6 +42,9 @@ export const InterestSearchScreen: React.FC<InterestSearchScreenProps> = ({
   navigation,
 }) => {
   const [interests, setInterests] = useState<InterestDTO[]>([]);
+  const [allFetchedInterests, setAllFetchedInterests] = useState<InterestDTO[]>(
+    [],
+  );
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState<string>('');
@@ -59,16 +61,16 @@ export const InterestSearchScreen: React.FC<InterestSearchScreenProps> = ({
       setError(null);
 
       if (cache.has(query)) {
-        setInterests(cache.get(query)!);
+        setAllFetchedInterests(cache.get(query)!);
         setLoading(false);
         return;
       }
 
-      const interestList = await getSearchInterests.fetch(query, 15);
+      const interestList = await getSearchInterests.fetch(query, 100);
 
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-      setInterests(interestList);
       cache.set(query, interestList);
+      setAllFetchedInterests(interestList);
 
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -85,6 +87,13 @@ export const InterestSearchScreen: React.FC<InterestSearchScreenProps> = ({
   useEffect(() => {
     fetchInterests();
   }, [fetchInterests]);
+
+  useEffect(() => {
+    const filtered = allFetchedInterests.filter(interest =>
+      interest.name.toLowerCase().startsWith(query.toLowerCase()),
+    );
+    setInterests(filtered);
+  }, [query, allFetchedInterests]);
 
   const handleInterestPress = useCallback(
     (interestId: string) => {
@@ -106,23 +115,16 @@ export const InterestSearchScreen: React.FC<InterestSearchScreenProps> = ({
 
   const renderSeparator = () => <View style={styles.separator} />;
 
-  const renderListHeader = () => (
+  const renderTitle = () => (
     <View style={styles.header}>
       <Text style={styles.headerText}>✨ Interests</Text>
-      <TextInput
-        style={styles.searchInput}
-        placeholder="Search interests..."
-        value={query}
-        onChangeText={setQuery}
-        onSubmitEditing={fetchInterests}
-        returnKeyType="search"
-      />
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>{renderListHeader()}</View>
+      {renderTitle()}
+
       {error ? (
         <View style={styles.centered}>
           <Text style={styles.errorText}>{error}</Text>
@@ -135,12 +137,31 @@ export const InterestSearchScreen: React.FC<InterestSearchScreenProps> = ({
           </Animated.View>
         </View>
       ) : (
+        // eslint-disable-next-line react-native/no-inline-styles
         <Animated.View style={{opacity: fadeAnim, flex: 1}}>
           {loading ? (
-            <View style={styles.centered}>
-              <ActivityIndicator size="large" color="#0099cc" />
-              <Text style={styles.loadingText}>Loading interests...</Text>
-            </View>
+            <FlatList
+              data={[...interests.slice(0, 1), ...Array(5).fill(undefined)]}
+              renderItem={({item, index}) =>
+                index === 0 && item ? (
+                  <InterestCard
+                    interest={item}
+                    onPress={() => handleInterestPress(item.name)}
+                    showPrefixAvatar
+                  />
+                ) : (
+                  <ShimmerPlaceholders />
+                )
+              }
+              keyExtractor={(item, index) =>
+                item ? String(item.id) : `shimmer-${index}`
+              }
+              inverted
+              contentContainerStyle={styles.listContent}
+              ItemSeparatorComponent={renderSeparator}
+              keyboardShouldPersistTaps="handled"
+              ListFooterComponent={<View style={styles.footer} />}
+            />
           ) : interests.length === 0 ? (
             <View style={styles.centered}>
               <Text style={styles.emptyText}>No interests found</Text>
@@ -150,15 +171,27 @@ export const InterestSearchScreen: React.FC<InterestSearchScreenProps> = ({
               data={interests}
               renderItem={renderItem}
               keyExtractor={item => String(item.id)}
+              inverted
               contentContainerStyle={styles.listContent}
               ItemSeparatorComponent={renderSeparator}
-              ListHeaderComponent={null}
-              ListFooterComponent={<View style={styles.footer} />}
               keyboardShouldPersistTaps="handled"
+              ListFooterComponent={<View style={styles.footer} />}
             />
           )}
         </Animated.View>
       )}
+
+      {/* Input field at the bottom */}
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search interests..."
+          placeholderTextColor="#666"
+          value={query}
+          onChangeText={setQuery}
+          returnKeyType="search"
+        />
+      </View>
     </SafeAreaView>
   );
 };

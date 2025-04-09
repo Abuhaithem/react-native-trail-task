@@ -47,17 +47,27 @@ export default StyleSheet.create({
     fontWeight: '700',
     color: '#0288d1',
   },
-  searchInput: {
-    marginTop: 12,
-    marginHorizontal: 16,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+  shimmerCard: {
+    height: 50,
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
-    fontSize: 16,
+    marginVertical: 4,
+    backgroundColor: '#e0e0e0',
   },
+  inputContainer: {
+    padding: 12,
+    borderTopWidth: 1,
+    borderColor: '#e0e0e0',
+    backgroundColor: '#fff',
+  },
+
+  searchInput: {
+    backgroundColor: '#f1f1f1',
+    padding: 12,
+    borderRadius: 10,
+    fontSize: 16,
+    color: '#000',
+  },
+
   footer: {
     height: 24,
   },

@@ -14,7 +14,8 @@
     "axios": "^1.8.4",
     "lodash.debounce": "^4.0.8",
     "react": "19.0.0",
-    "react-native": "0.78.2"
+    "react-native": "0.78.2",
+    "react-native-shimmer-placeholder": "^2.0.9"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
