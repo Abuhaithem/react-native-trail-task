@@ -40,7 +40,8 @@ export default StyleSheet.create({
     height: 8,
   },
   header: {
-    paddingBottom: 16,
+    alignItems: 'center',
+    paddingVertical: 10,
   },
   headerText: {
     fontSize: 20,

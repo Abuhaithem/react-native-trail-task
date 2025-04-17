@@ -11,14 +11,15 @@ import {
   Platform,
   TextInput,
 } from 'react-native';
-import {InterestDTO} from '../domain/models/InterestDTO';
+import {Interest} from '../domain/entities/Interest';
 import {GetSearchInterests} from '../domain/usecases/GetSearchInterests';
-import {InterestRemoteDataSource} from '../data/searchDataSource';
+import {InterestRemoteDataSource} from '../data/datasource/searchDataSource';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../types';
 import styles from './styles/InterestSearchStyle.styles';
 import InterestCard from './components/InterestCard';
 import ShimmerPlaceholders from './components/ShimmerPlaceholders';
+import {InterestRepositoryImpl} from '../data/repositories/InterestRepositoryImpl';
 
 if (
   Platform.OS === 'android' &&
@@ -27,7 +28,7 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const cache = new Map<string, InterestDTO[]>();
+const cache = new Map<string, Interest[]>();
 
 type InterestSearchScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -41,19 +42,23 @@ interface InterestSearchScreenProps {
 export const InterestSearchScreen: React.FC<InterestSearchScreenProps> = ({
   navigation,
 }) => {
-  const [interests, setInterests] = useState<InterestDTO[]>([]);
-  const [allFetchedInterests, setAllFetchedInterests] = useState<InterestDTO[]>(
-    [],
-  );
+  const [interests, setInterests] = useState<Interest[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState<string>('');
   const fadeAnim = useState(new Animated.Value(0))[0];
 
-  const getSearchInterests = useMemo(
-    () => new GetSearchInterests(new InterestRemoteDataSource()),
-    [],
-  );
+  const getSearchInterests = useMemo(() => {
+    const remoteDataSource = new InterestRemoteDataSource();
+    const repository = new InterestRepositoryImpl(remoteDataSource);
+    return new GetSearchInterests(repository);
+  }, []);
+
+  const filteredInterests = useMemo(() => {
+    return interests.filter(interest =>
+      interest.name.toLowerCase().startsWith(query.toLowerCase()),
+    );
+  }, [query, interests]);
 
   const fetchInterests = useCallback(async () => {
     try {
@@ -61,16 +66,15 @@ export const InterestSearchScreen: React.FC<InterestSearchScreenProps> = ({
       setError(null);
 
       if (cache.has(query)) {
-        setAllFetchedInterests(cache.get(query)!);
-        setLoading(false);
+        setInterests(cache.get(query)!);
         return;
       }
 
-      const interestList = await getSearchInterests.fetch(query, 100);
+      const interestList = await getSearchInterests.fetch(query, 10);
 
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       cache.set(query, interestList);
-      setAllFetchedInterests(interestList);
+      setInterests(interestList);
 
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -88,13 +92,6 @@ export const InterestSearchScreen: React.FC<InterestSearchScreenProps> = ({
     fetchInterests();
   }, [fetchInterests]);
 
-  useEffect(() => {
-    const filtered = allFetchedInterests.filter(interest =>
-      interest.name.toLowerCase().startsWith(query.toLowerCase()),
-    );
-    setInterests(filtered);
-  }, [query, allFetchedInterests]);
-
   const handleInterestPress = useCallback(
     (interestId: string) => {
       navigation.navigate('InterestDetail', {interestId});
@@ -103,7 +100,7 @@ export const InterestSearchScreen: React.FC<InterestSearchScreenProps> = ({
   );
 
   const renderItem = useCallback(
-    ({item}: {item: InterestDTO}) => (
+    ({item}: {item: Interest}) => (
       <InterestCard
         interest={item}
         onPress={() => handleInterestPress(item.name)}
@@ -141,9 +138,9 @@ export const InterestSearchScreen: React.FC<InterestSearchScreenProps> = ({
         <Animated.View style={{opacity: fadeAnim, flex: 1}}>
           {loading ? (
             <FlatList
-              data={[...interests.slice(0, 1), ...Array(5).fill(undefined)]}
-              renderItem={({item, index}) =>
-                index === 0 && item ? (
+              data={[...filteredInterests, ...Array(5).fill(undefined)]}
+              renderItem={({item}) =>
+                item ? (
                   <InterestCard
                     interest={item}
                     onPress={() => handleInterestPress(item.name)}
@@ -162,13 +159,13 @@ export const InterestSearchScreen: React.FC<InterestSearchScreenProps> = ({
               keyboardShouldPersistTaps="handled"
               ListFooterComponent={<View style={styles.footer} />}
             />
-          ) : interests.length === 0 ? (
+          ) : filteredInterests.length === 0 ? (
             <View style={styles.centered}>
               <Text style={styles.emptyText}>No interests found</Text>
             </View>
           ) : (
             <FlatList
-              data={interests}
+              data={filteredInterests}
               renderItem={renderItem}
               keyExtractor={item => String(item.id)}
               inverted

@@ -1,22 +1,18 @@
-import {InterestDTO} from '../domain/models/InterestDTO';
-
-const DEFAULT_API_URL = 'https://be-v2.convose.com/autocomplete/interests';
-const AUTH_TOKEN = 'Jy8RZCXvvc6pZQUu2QZ2';
-const DEFAULT_LIMIT = 15;
-const REQUEST_TIMEOUT = 5000;
+import {AUTH_TOKEN} from '@env';
+import {CONFIG} from '../config';
 
 /**
  * API Response structure
  */
 interface AutocompleteResponse {
-  autocomplete: InterestDTO[];
+  autocomplete: any[]; // raw interest data (DTOs)
   pages_left: number;
 }
 
 export class InterestRemoteDataSource {
   private readonly apiUrl: string;
 
-  constructor(apiUrl = DEFAULT_API_URL) {
+  constructor(apiUrl = CONFIG.DEFAULT_API_URL) {
     this.apiUrl = apiUrl;
   }
 
@@ -25,13 +21,13 @@ export class InterestRemoteDataSource {
    * @param query Search term
    * @param limit Number of interests to fetch
    * @param from Pagination offset
-   * @returns Promise of InterestDTO[]
+   * @returns Promise of InterestModel[] (DTOs)
    */
   async fetchInterests(
     query = '',
-    limit = DEFAULT_LIMIT,
+    limit = CONFIG.DEFAULT_LIMIT,
     from = 0,
-  ): Promise<InterestDTO[]> {
+  ): Promise<any[]> {
     try {
       const url = `${this.apiUrl}?q=${encodeURIComponent(
         query,
@@ -45,6 +41,7 @@ export class InterestRemoteDataSource {
       }
 
       const data: AutocompleteResponse = await response.json();
+
       if (!Array.isArray(data.autocomplete)) {
         throw new Error('Unexpected API response format');
       }
@@ -61,7 +58,10 @@ export class InterestRemoteDataSource {
    */
   private async fetchWithTimeout(url: string): Promise<Response> {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      CONFIG.REQUEST_TIMEOUT,
+    );
 
     try {
       return await fetch(url, {

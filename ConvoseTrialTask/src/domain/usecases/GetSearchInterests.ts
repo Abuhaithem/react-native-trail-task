@@ -1,24 +1,25 @@
-import {InterestDTO} from '../models/InterestDTO';
-import {InterestRemoteDataSource} from '../../data/searchDataSource';
+import {Interest} from '../entities/Interest';
+import {InterestRepository} from '../repositories/InterestRepository';
 
 export class GetSearchInterests {
-  constructor(private readonly searchDataSource: InterestRemoteDataSource) {}
+  private readonly interestRepository: InterestRepository;
+
+  constructor(interestRepository: InterestRepository) {
+    this.interestRepository = interestRepository;
+  }
 
   /**
-   * Fetch interests based on a query and limit.
-   * @param query The search keyword (optional).
-   * @param limit Number of results to return.
-   * @returns A promise resolving to an array of InterestDTO.
+   * Fetch and return a list of interest entities
+   * @param query Search term
+   * @param limit Number of interests to fetch
+   * @param from Pagination offset
+   * @returns Promise<Interest[]>
    */
-  public async fetch(
+  async fetch(
     query: string = '',
     limit: number = 15,
-  ): Promise<InterestDTO[]> {
-    try {
-      return await this.searchDataSource.fetchInterests(query, limit);
-    } catch (error) {
-      console.error('Error fetching interests:', error);
-      return [];
-    }
+    from: number = 0,
+  ): Promise<Interest[]> {
+    return await this.interestRepository.fetchInterests(query, limit, from);
   }
 }

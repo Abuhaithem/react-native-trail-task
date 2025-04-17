@@ -1,9 +1,9 @@
 import React from 'react';
 import {TouchableOpacity, Text, StyleSheet, View, Image} from 'react-native';
-import {InterestDTO} from '../../domain/models/InterestDTO';
+import {Interest} from '../../domain/entities/Interest';
 
 interface Props {
-  interest: InterestDTO;
+  interest: Interest;
   onPress: () => void;
   showPrefixAvatar?: boolean;
 }
